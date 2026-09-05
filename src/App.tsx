@@ -12,7 +12,10 @@ import Soundtrack from "./components/Soundtrack"
 
 export default function App() {
   return (
-    <BrowserRouter>
+    // El sitio publicado vive en una subcarpeta (/Abayomi/). Sin decírselo al
+    // enrutador, esa parte de la URL se tomaría como una ruta más y la portada
+    // acabaría mostrando otra página. En desarrollo BASE_URL es "/".
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       {/* Va dentro del router: la pista depende de la ruta actual. */}
       <Soundtrack />
       <Routes>
