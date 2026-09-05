@@ -1,0 +1,80 @@
+name: Publicar en GitHub Pages
+
+# Se publica en cada envío a main, y también a mano desde la pestaña Actions.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Permisos que necesita la acción de despliegue.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Si llegan dos envíos seguidos, se publica el último y se cancela el anterior.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  construir:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+        with:
+          # Las imágenes están en Git LFS: sin esto se descargarían punteros de
+          # texto en lugar de los archivos y la web saldría sin cartas.
+          lfs: true
+
+      - name: Preparar pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.34.3
+
+      - name: Preparar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Instalar dependencias
+        run: pnpm install --frozen-lockfile
+
+      - name: Compilar
+        # La web vive en una subcarpeta del dominio (natch1623.github.io/Abayomi/),
+        # así que hay que decírselo para que encuentre sus archivos.
+        run: pnpm exec vite build --base=/Abayomi/
+
+      - name: Preparar las rutas internas
+        # GitHub Pages no conoce /cartas ni /futuro: son rutas del navegador.
+        # Sirviendo la misma página como 404 se cargan bien los enlaces directos.
+        run: cp dist/index.html dist/404.html
+
+      - name: Comprobar que no se publican las fotos personales
+        # Red de seguridad: si algún día Fotos/ o web/Fotos/ acabaran en el
+        # repositorio por error, esto detiene la publicación en vez de sacarlas.
+        run: |
+          if ls dist/assets 2>/dev/null | grep -qE '^(20[0-9]{6}_|IMG-[0-9]|VID-[0-9]|Screenshot_|lv_[0-9])'; then
+            echo "::error::Se han colado fotos personales en la compilación. No se publica."
+            ls dist/assets | grep -E '^(20[0-9]{6}_|IMG-[0-9]|VID-[0-9]|Screenshot_|lv_[0-9])'
+            exit 1
+          fi
+          echo "Sin fotos personales en la compilación."
+
+      - name: Preparar el artefacto
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  publicar:
+    needs: construir
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
+    steps:
+      - name: Publicar
+        id: despliegue
+        uses: actions/deploy-pages@v4

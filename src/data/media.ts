@@ -6,14 +6,27 @@
  * ninguna lista que mantener a mano.
  */
 
-// Nota: Vite exige que el patrón sea un literal, no una variable.
-const cartaFiles = import.meta.glob("/Cartas/**/*.{png,jpg,jpeg,webp,gif,svg,mp4,webm,mov}", {
+/**
+ * Aquí NO se piden las imágenes originales.
+ *
+ * `import.meta.glob` importa todo lo que encaja con el patrón, así que pedir
+ * los PNG de Cartas/ metía sus cientos de megas en la compilación aunque en
+ * pantalla solo se usaran las versiones ligeras. Las imágenes salen de web/
+ * (ver más abajo) y los originales quedan como material de partida para
+ * `scripts/optimizar-imagenes.mjs`.
+ *
+ * Sí se piden los formatos que no tienen versión ligera: el video, el SVG y
+ * los videos de la galería.
+ *
+ * Nota: Vite exige que el patrón sea un literal, no una variable.
+ */
+const cartaFiles = import.meta.glob("/Cartas/**/*.{svg,mp4,webm,mov}", {
   eager: true,
   query: "?url",
   import: "default",
 }) as Record<string, string>
 
-const fotoFiles = import.meta.glob("/Fotos/**/*.{png,jpg,jpeg,webp,gif,svg,mp4,webm,mov}", {
+const fotoFiles = import.meta.glob("/Fotos/**/*.{mp4,webm,mov}", {
   eager: true,
   query: "?url",
   import: "default",
