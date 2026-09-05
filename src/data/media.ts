@@ -41,6 +41,64 @@ const songFiles = import.meta.glob("/song/*.mp3", {
   import: "default",
 }) as Record<string, string>
 
+/** Ordena "2.png" antes que "10.png" (el orden alfabético no lo haría). */
+function naturalCompare(a: string, b: string): number {
+  return a.localeCompare(b, "es", { numeric: true, sensitivity: "base" })
+}
+
+/**
+ * Versiones ligeras generadas por `scripts/optimizar-imagenes.mjs`. Espejan la
+ * estructura de Cartas/ y Fotos/ dentro de web/, en formato .webp.
+ */
+const webFiles = import.meta.glob("/web/**/*.webp", {
+  eager: true,
+  query: "?url",
+  import: "default",
+}) as Record<string, string>
+
+/**
+ * Índice único de medios, para que la web funcione tanto con los originales
+ * como sin ellos.
+ *
+ * La clave es la ruta sin extensión ("/Cartas/Nicole"), así que original y
+ * versión ligera caen en la misma entrada. Si existen las dos gana la ligera;
+ * si solo hay una, se usa esa. Por eso una copia del repositorio, que solo
+ * lleva web/, sigue mostrando las cartas.
+ */
+interface Medio {
+  /** Lo que se sirve al navegador. */
+  url: string
+  /** Nombre del archivo del que salió, para deducir tipo y fecha. */
+  fileName: string
+}
+
+function sinExtension(ruta: string): string {
+  return ruta.replace(/\.[^./]+$/, "")
+}
+
+function nombreDe(ruta: string): string {
+  return ruta.slice(ruta.lastIndexOf("/") + 1)
+}
+
+const medios = new Map<string, Medio>()
+
+// Primero los originales…
+for (const [ruta, url] of Object.entries({ ...cartaFiles, ...fotoFiles })) {
+  medios.set(sinExtension(ruta), { url, fileName: nombreDe(ruta) })
+}
+// …y encima las ligeras, que tienen preferencia. Si el original no está,
+// la ligera crea la entrada ella sola.
+for (const [ruta, url] of Object.entries(webFiles)) {
+  const clave = sinExtension(ruta.replace(/^\/web/, ""))
+  const previo = medios.get(clave)
+  medios.set(clave, { url, fileName: previo?.fileName ?? nombreDe(ruta) })
+}
+
+/** Claves del índice bajo un prefijo, en orden natural. */
+function clavesBajo(prefijo: string): string[] {
+  return [...medios.keys()].filter(k => k.startsWith(prefijo)).sort(naturalCompare)
+}
+
 export type MediaKind = "image" | "video"
 
 export interface MediaItem {
@@ -57,18 +115,13 @@ export function kindOf(path: string): MediaKind {
   return /\.(mp4|webm|mov)$/i.test(path) ? "video" : "image"
 }
 
-/** Ordena "2.png" antes que "10.png" (el orden alfabético no lo haría). */
-function naturalCompare(a: string, b: string): number {
-  return a.localeCompare(b, "es", { numeric: true, sensitivity: "base" })
-}
-
 /**
  * URL de un archivo suelto dentro de `Cartas/`.
  * Devuelve "" si el archivo todavía no existe, para que la interfaz pueda
  * mostrar su marcador de posición en lugar de romperse.
  */
 export function carta(fileName: string): string {
-  return cartaFiles[`/Cartas/${fileName}`] ?? ""
+  return medios.get(sinExtension(`/Cartas/${fileName}`))?.url ?? ""
 }
 
 /** URL de una pista de `song/`. "" si no existe. */
@@ -81,6 +134,7 @@ export function asset(fileName: string): string {
   return assetFiles[`/assets/${fileName}`] ?? ""
 }
 
+
 /** Código de una carta que es una página HTML completa. "" si no existe. */
 export function cartaHtml(fileName: string): string {
   return cartaHtmlFiles[`/Cartas/${fileName}`] ?? ""
@@ -88,11 +142,7 @@ export function cartaHtml(fileName: string): string {
 
 /** Todas las páginas de una carta que ocupa una subcarpeta, en orden numérico. */
 export function cartaPages(folderName: string): string[] {
-  const prefix = `/Cartas/${folderName}/`
-  return Object.keys(cartaFiles)
-    .filter(path => path.startsWith(prefix))
-    .sort(naturalCompare)
-    .map(path => cartaFiles[path])
+  return clavesBajo(`/Cartas/${folderName}/`).map(k => medios.get(k)!.url)
 }
 
 const MESES = [
@@ -116,23 +166,17 @@ function dateFromFileName(fileName: string): string | undefined {
   return `${day} de ${MESES[month - 1]}, ${year}`
 }
 
-function toMediaItems(files: Record<string, string>): MediaItem[] {
-  return Object.keys(files)
-    .sort(naturalCompare)
-    .map(path => {
-      const fileName = path.slice(path.lastIndexOf("/") + 1)
-      return {
-        id: path,
-        src: files[path],
-        kind: kindOf(path),
-        name: fileName.replace(/\.[^.]+$/, ""),
-        date: dateFromFileName(fileName),
-      }
-    })
-}
-
 /** Todas las fotos y videos de `Fotos/`, en orden estable. */
-export const fotos: MediaItem[] = toMediaItems(fotoFiles)
+export const fotos: MediaItem[] = clavesBajo("/Fotos/").map(clave => {
+  const medio = medios.get(clave)!
+  return {
+    id: clave,
+    src: medio.url,
+    kind: kindOf(medio.fileName),
+    name: sinExtension(medio.fileName),
+    date: dateFromFileName(medio.fileName),
+  }
+})
 
 /** Baraja Fisher-Yates. Devuelve una copia; no toca el arreglo original. */
 export function shuffle<T>(items: readonly T[]): T[] {

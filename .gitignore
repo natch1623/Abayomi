@@ -19,7 +19,16 @@ logs/
 /.plugins/
 /.opencode-skills/
 
-# Las fotos personales de la galería de Abayomi no se publican: la app las lee
-# de esta carpeta en local, pero fuera de aquí solo queda la carta de esa
-# sección. Si clonas el repo, deja tus imágenes en Fotos/ y aparecerán solas.
+# Las fotos personales de Nicole no se publican, ni las originales ni las
+# versiones ligeras. Viven solo en este equipo.
 /Fotos/
+/web/Fotos/
+
+# De las cartas se publica solo la versión ligera de web/Cartas/. Los originales
+# de varios megas se quedan aquí; para regenerar las ligeras tras añadir alguna:
+#   node scripts/optimizar-imagenes.mjs
+/Cartas/**/*.png
+/Cartas/**/*.jpg
+/Cartas/**/*.jpeg
+# El video, el SVG y la carta en HTML no tienen versión ligera: la web los lee
+# de Cartas/ directamente, así que sí se publican.
