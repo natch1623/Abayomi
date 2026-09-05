@@ -1,0 +1,15 @@
+{
+  "title": "Abayomi",
+  "description": "Experience a nostalgic journey through memories with an immersive landscape, real-time countdown, and a collection of heartfelt letters, inviting exploration.",
+  "language": "es",
+  "icons": {
+    "icon": "/page-icon.jpg"
+  },
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

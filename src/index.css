@@ -1,0 +1,114 @@
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Nunito:wght@300;400;500;600&display=swap');
+@import 'tailwindcss';
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+:root {
+  --font-display: 'Lora', Georgia, serif;
+  --font-body: 'Nunito', system-ui, sans-serif;
+}
+
+/* ── Animation keyframes ───────────────────────────────────────────── */
+
+@keyframes pancitoCae {
+  0%   { transform: translateY(-100px) rotate(var(--rot-s, -8deg)); opacity: 0; }
+  8%   { opacity: 0.95; }
+  92%  { opacity: 0.95; }
+  100% { transform: translateY(110vh) rotate(var(--rot-e, 8deg)); opacity: 0; }
+}
+
+/* Entrada escalonada de la portada: cada pieza sube a su turno. */
+@keyframes homeRise {
+  0%   { opacity: 0; transform: translateY(16px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ── El planeta final ──────────────────────────────────────────────── */
+
+@keyframes uniArrive {
+  0%   { opacity: 0; transform: scale(0.92); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes uniSpin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes uniBreathe {
+  0%, 100% { opacity: 0.5;  transform: scale(0.96); }
+  50%      { opacity: 1;    transform: scale(1.04); }
+}
+
+@keyframes uniPulseOut {
+  0%   { transform: scale(1);    opacity: 0.45; }
+  70%  { opacity: 0.12; }
+  100% { transform: scale(1.62); opacity: 0; }
+}
+
+.uniPulse {
+  animation: uniPulseOut 7.8s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+  opacity: 0;
+}
+
+.uniBlotches { animation: uniSpin 190s linear infinite; }
+.uniRays     { animation: uniSpin 320s linear infinite reverse; }
+.uniHalo     { animation: uniBreathe 9s ease-in-out infinite; transform-origin: 200px 200px; }
+.uniCore     { animation: uniBreathe 5.2s ease-in-out infinite; transform-origin: 200px 200px; }
+
+.uniTextTop {
+  animation: homeRise 1.6s cubic-bezier(0.22, 1, 0.36, 1) 1.1s both;
+  filter: drop-shadow(0 0 18px rgba(200, 190, 255, 0.45));
+}
+.uniTextBottom {
+  animation: homeRise 1.6s cubic-bezier(0.22, 1, 0.36, 1) 1.9s both;
+  filter: drop-shadow(0 0 18px rgba(200, 190, 255, 0.45));
+}
+
+@keyframes continuaraFadeIn {
+  0%   { background: rgba(2,1,12,0); }
+  100% { background: rgba(2,1,12,0.92); }
+}
+
+@keyframes continuaraText {
+  0%   { color: rgba(240,220,180,0); }
+  100% { color: rgba(240,220,180,0.88); }
+}
+
+@keyframes continuaraLine {
+  0%   { width: 0px; }
+  100% { width: 80px; }
+}
+
+@keyframes hubCardIn {
+  0%   { opacity: 0; transform: translateY(18px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes twinkleHub {
+  0%   { opacity: 0.15; }
+  100% { opacity: 0.6; }
+}
+
+/* Hide scrollbars by default, show on scroll */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(200, 170, 120, 0.2) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(200, 170, 120, 0.2);
+  border-radius: 2px;
+}

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuestras Cartas</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .cartas-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .carta-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .carta-item:hover {
+            transform: scale(1.02);
+            background: rgba(255, 255, 255, 0.3);
+        }
+        h2 {
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+        .back-link {
+            position: absolute;
+            top: 20px;
+            left: 30px;
+            color: white;
+            text-decoration: none;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 30px;
+            transition: background 0.3s;
+        }
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="sky" id="sky"></div>
+
+    <div class="content-wrapper">
+        <a href="../index.html" class="back-link">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Volver</span>
+        </a>
+
+        <div class="cartas-container">
+            <h2><i class="fa-solid fa-envelope"></i> Mis Cartas para Ti</h2>
+            
+            <div class="carta-item">
+                <h3>Carta 1: El Inicio</h3>
+                <p>Fecha: 5 de septiembre de 2024</p>
+            </div>
+            
+            <div class="carta-item">
+                <h3>Carta 2: Momentos Especiales</h3>
+                <p>Fecha: ...</p>
+            </div>
+            
+            <!-- Aquí puedes agregar más cartas -->
+        </div>
+    </div>
+
+    <script>
+        // Reutilizamos la lógica de las estrellas para el fondo
+        function createStars() {
+            const sky = document.getElementById('sky');
+            const starCount = 150;
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                star.style.left = `${Math.random() * 100}vw`;
+                star.style.top = `${Math.random() * 100}vh`;
+                star.style.width = `${Math.random() * 2 + 1}px`;
+                star.style.height = `${Math.random() * 2 + 1}px`;
+                star.style.animationDuration = `${Math.random() * 3 + 1}s`;
+                sky.appendChild(star);
+            }
+        }
+        window.addEventListener('load', createStars);
+    </script>
+</body>
+</html>
